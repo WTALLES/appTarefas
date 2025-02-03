@@ -1,0 +1,25 @@
+<div class="action-bar">
+  <button mat-raised-button color="primary" (click)="openTaskForm()">
+    <mat-icon>add</mat-icon> Nova Tarefa
+  </button>
+</div>
+
+<div class="board">
+  <div *ngFor="let status of statuses" class="lane">
+    <h2>{{ status }}</h2>
+    <div
+      cdkDropList
+      [id]="status"
+      [cdkDropListData]="tasks[status] || []"
+      (cdkDropListDropped)="onDrop($event)"
+      class="task-list"
+    >
+      <div *ngFor="let task of (tasks[status] || [])" cdkDrag class="task-card">
+        <mat-card (click)="openTaskDetails(task)">
+          <mat-card-title>{{ task.title }}</mat-card-title>
+          <mat-card-content>{{ task.description }}</mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+  </div>
+</div>

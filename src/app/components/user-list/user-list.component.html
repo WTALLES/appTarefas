@@ -1,0 +1,31 @@
+<!-- src/app/components/user-list/user-list.component.html -->
+<mat-card>
+  <mat-card-title>Lista de Usuários</mat-card-title>
+  <mat-card-content>
+    <table mat-table [dataSource]="users">
+      <!-- Colunas -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> Nome </th>
+        <td mat-cell *matCellDef="let user"> {{ user.name }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef> Email </th>
+        <td mat-cell *matCellDef="let user"> {{ user.email }} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Ações </th>
+        <td mat-cell *matCellDef="let user">
+          <button mat-icon-button (click)="deleteUser(user.id)">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <!-- Renderização da tabela -->
+      <tr mat-header-row *matHeaderRowDef="['name', 'email', 'actions']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['name', 'email', 'actions']"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>

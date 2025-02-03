@@ -1,0 +1,8 @@
+services:
+  api:
+    image: oseniasjunior/api-task
+    ports:
+      - "3000:3000"  # Use a porta original do desafio
+    volumes:
+      - ./data:/app/data  # Mantenha o volume para o SQLite
+    command: sh -c "python manage.py migrate && gunicorn DesafioAngularBackend.wsgi --bind 0.0.0.0:3000"

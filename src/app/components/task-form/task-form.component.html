@@ -1,0 +1,73 @@
+<h2 mat-dialog-title>{{ data.task ? 'Editar Tarefa' : 'Nova Tarefa' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="taskForm">
+    <!-- Campo Nome -->
+    <mat-form-field appearance="fill">
+      <mat-label>Nome da Tarefa</mat-label>
+      <input
+        matInput
+        formControlName="name"
+        placeholder="Ex: Desenvolver API"
+      >
+      <mat-error *ngIf="taskForm.get('name')?.hasError('required')">
+        Nome é obrigatório
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Campo Descrição -->
+    <mat-form-field appearance="fill">
+      <mat-label>Descrição</mat-label>
+      <textarea
+        matInput
+        formControlName="description"
+        placeholder="Ex: Criar endpoints RESTful"
+      ></textarea>
+    </mat-form-field>
+
+    <!-- Horas Planejadas -->
+    <mat-form-field appearance="fill">
+      <mat-label>Horas Planejadas</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="planned_hours"
+        min="1"
+      >
+      <mat-error *ngIf="taskForm.get('planned_hours')?.hasError('min')">
+        Mínimo 1 hora
+      </mat-error>
+    </mat-form-field>
+
+    <!-- Status -->
+    <mat-form-field appearance="fill">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="status">
+        <mat-option value="1">To Do</mat-option>
+        <mat-option value="2">In Progress</mat-option>
+        <mat-option value="3">Done</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Dono da Tarefa -->
+    <mat-form-field appearance="fill">
+      <mat-label>ID do Responsável</mat-label>
+      <input
+        matInput
+        type="number"
+        formControlName="owner"
+      >
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="onSave()"
+    [disabled]="taskForm.invalid"
+  >
+    Salvar
+  </button>
+</mat-dialog-actions>

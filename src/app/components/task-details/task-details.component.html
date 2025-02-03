@@ -1,0 +1,34 @@
+<h2 mat-dialog-title>{{ task.name }}</h2>
+<mat-dialog-content cdkTrapFocus>
+  <mat-tab-group>
+    <mat-tab label="Detalhes">
+      <div class="tab-content">
+        <p>{{ task.description || 'Sem descrição' }}</p>
+        <p><strong>Status:</strong> {{ task.status }}</p>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Comentários">
+      <div class="tab-content">
+        <mat-list>
+          <mat-list-item *ngFor="let comment of task.comments">
+            {{ comment.text }}
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </mat-tab>
+
+    <mat-tab label="Horas">
+      <div class="tab-content">
+        <mat-list>
+          <mat-list-item *ngFor="let hour of task.hours">
+            {{ hour.hours }} horas registradas
+          </mat-list-item>
+        </mat-list>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close>Fechar</button>
+</mat-dialog-actions>
