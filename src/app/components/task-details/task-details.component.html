@@ -11,8 +11,8 @@
     <mat-tab label="Comentários">
       <div class="tab-content">
         <mat-list>
-          <mat-list-item *ngFor="let comment of task.comments">
-            {{ comment.text }}
+          <mat-list-item *ngFor="let comment of comment.Comment">
+            {{ comment.note }}
           </mat-list-item>
         </mat-list>
       </div>
@@ -21,7 +21,7 @@
     <mat-tab label="Horas">
       <div class="tab-content">
         <mat-list>
-          <mat-list-item *ngFor="let hour of task.hours">
+          <mat-list-item *ngFor="let hour of task.planned_hours">
             {{ hour.hours }} horas registradas
           </mat-list-item>
         </mat-list>

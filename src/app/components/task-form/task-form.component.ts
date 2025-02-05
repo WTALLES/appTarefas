@@ -1,13 +1,22 @@
 import { Component, Inject } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogTitle, MatDialogContent, MatDialogActions, MatDialogClose } from '@angular/material/dialog';
+import {
+  FormBuilder,
+  FormGroup,
+  Validators,
+  ReactiveFormsModule
+} from '@angular/forms';
+import {
+  MAT_DIALOG_DATA,
+  MatDialogRef,
+  MatDialogModule
+} from '@angular/material/dialog';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../../models/models-task';
+import { Task } from '../../../models/task';
+import { NgIf } from '@angular/common';
 import {MatError, MatFormField, MatLabel} from '@angular/material/form-field';
 import { MatInput } from '@angular/material/input';
-import { MatButton } from '@angular/material/button';
 import { MatSelect, MatOption } from '@angular/material/select';
-import { NgIf } from '@angular/common';
+import { MatButton } from '@angular/material/button';
 
 @Component({
   selector: 'app-task-form',
@@ -20,12 +29,9 @@ import { NgIf } from '@angular/common';
     MatSelect,
     MatOption,
     MatButton,
-    MatDialogTitle,
-    MatDialogContent,
-    MatDialogActions,
-    MatDialogClose,
-    MatLabel,
+    MatDialogModule,
     NgIf,
+    MatLabel,
     MatError
   ],
   styleUrls: ['./task-form.component.css']
@@ -37,37 +43,33 @@ export class TaskFormComponent {
     private fb: FormBuilder,
     private taskService: TaskService,
     private dialogRef: MatDialogRef<TaskFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { task: Task }
+    @Inject(MAT_DIALOG_DATA) public data: { task?: Task }
   ) {
     this.taskForm = this.fb.group({
-      name: ['', Validators.required],
-      description: ['', Validators.required],
+      name: ['', [Validators.required, Validators.maxLength(100)]],
+      description: ['', [Validators.required, Validators.maxLength(500)]],
       planned_hours: [0, [Validators.required, Validators.min(1)]],
       status: [1, Validators.required],
       owner: [null, Validators.required]
     });
 
-    if (data.task) {
-      this.taskForm.patchValue(data.task);
+    if (this.data.task) {
+      this.taskForm.patchValue(this.data.task);
     }
   }
 
   onSave(): void {
     if (this.taskForm.valid) {
-      const taskData: Task = {
-        ...this.taskForm.value,
-        status: Number(this.taskForm.value.status) as 1 | 2 | 3,
-        owner: Number(this.taskForm.value.owner)
-      };
+      const taskData: Task = { ...this.taskForm.value };
 
-      const operation = this.data.task
-        ? this.taskService.updateTask(this.data.task.id!, taskData)
-        : this.taskService.createTask(taskData);
+      console.log("Enviando tarefa:", taskData);
 
-      operation.subscribe({
+      this.taskService.createTask(taskData).subscribe({
         next: () => this.dialogRef.close(true),
-        error: (err) => console.error('Operation failed:', err)
+        error: (err) => console.error("Erro ao criar tarefa:", err)
       });
+    } else {
+      console.error("Formulário inválido!", this.taskForm.value);
     }
   }
 }

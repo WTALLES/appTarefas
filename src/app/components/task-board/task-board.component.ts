@@ -1,82 +1,150 @@
 import { Component, OnInit } from '@angular/core';
-import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { TaskService } from '../../services/task.service';
-import { MatDialog } from '@angular/material/dialog';
+import { Task } from '../../../models/task';
+
+
+import { DragDropModule, moveItemInArray, transferArrayItem, CdkDragDrop } from '@angular/cdk/drag-drop';
+
+import {MatCard, MatCardActions, MatCardContent, MatCardHeader, MatCardTitle} from '@angular/material/card';
+import {MatButton, MatIconButton} from '@angular/material/button';
+import {NgForOf, NgStyle} from '@angular/common';
+import { MatFormField } from '@angular/material/form-field';
+import { MatInput } from '@angular/material/input';
+import { FormsModule } from '@angular/forms';
 import { TaskFormComponent } from '../task-form/task-form.component';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
-import { MatIcon } from '@angular/material/icon';
-import { MatCard, MatCardContent, MatCardTitle } from '@angular/material/card';
-import { NgForOf } from '@angular/common';
-import { MatButton } from '@angular/material/button';
-import { TaskDetailsComponent } from '../task-details/task-details.component';
-import { Task } from '../../../models/models-task';
+import { MatDialog } from '@angular/material/dialog';
+import {MatIcon, MatIconModule} from "@angular/material/icon";
 
 @Component({
   selector: 'app-task-board',
   templateUrl: './task-board.component.html',
   standalone: true,
   imports: [
-    MatIcon,
-    CdkDropList,
+    DragDropModule,
     MatCard,
-    MatCardTitle,
-    MatCardContent,
-    NgForOf,
     MatButton,
-    CdkDrag
+    MatFormField,
+    MatInput,
+    NgForOf,
+    FormsModule,
+    MatCardContent,
+    MatCardTitle,
+    NgStyle,
+    MatCardHeader,
+    MatIcon,
+    MatIconModule,
+    MatIconButton,
+    MatCardActions
   ],
   styleUrls: ['./task-board.component.css']
 })
 export class TaskBoardComponent implements OnInit {
   statuses = ['A fazer', 'Em andamento', 'Concluído'];
-  tasks: any = {
+  tasks: Record<string, Task[]> = {
     'A fazer': [],
     'Em andamento': [],
     'Concluído': []
   };
 
-  constructor(
-    private taskService: TaskService,
-    private dialog: MatDialog
-  ) { }
+  newComment: string = '';
+  newHours: number = 0;
+  newResponsible: string = '';
+
+  constructor(private taskService: TaskService, private dialog: MatDialog) {}
 
   ngOnInit(): void {
     this.loadTasks();
   }
 
   loadTasks(): void {
-    this.taskService.getTasks().subscribe((data: Task[]) => {
-      this.tasks = {
-        'A fazer': [],
-        'Em andamento': [],
-        'Concluído': []
-      };
+    this.taskService.getTasks().subscribe(
+      (data: Task[]) => {
+        console.log('Tarefas carregadas:', data);
+        const statusMap: Record<number, string> = {
+          1: 'A fazer',
+          2: 'Em andamento',
+          3: 'Concluído'
+        };
+        this.tasks = { 'A fazer': [], 'Em andamento': [], 'Concluído': [] };
+        data.forEach((task) => {
+          task.comments = task.comments || [];
+          const key = statusMap[task.status] || 'A fazer';
+          this.tasks[key].push(task);
+        });
+      },
+      (error) => {
+        console.error('Erro ao carregar tarefas:', error);
+      }
+    );
+  }
 
-      const statusMap: Record<number, string> = {
-        1: 'A fazer',
-        2: 'Em andamento',
-        3: 'Concluído'
-      };
+  openTaskForm(task?: Task): void {
+    const dialogRef = this.dialog.open(TaskFormComponent, {
+      width: '600px',
+      data: { task }
+    });
 
-      data.forEach((task: Task) => {
-        let statusKey = Array.isArray(task.status) ? task.status[0] : task.status; // Pega o primeiro valor se for array
-        const status = statusMap[Number(statusKey)] || 'A fazer'; // Garante que seja número válido
-
-        if (this.tasks[status]) {
-          this.tasks[status].push(task);
-        } else {
-          console.warn(`Status inválido encontrado: ${task.status}. Definindo como 'A fazer'.`);
-          this.tasks['A fazer'].push(task);
-        }
-      });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.loadTasks();
+      }
     });
   }
 
+  deleteTask(taskId: number | undefined): void {
+    if (taskId === undefined) {
+      console.error('ID da tarefa é indefinido.');
+      return;
+    }
+
+    this.taskService.deleteTask(taskId).subscribe(
+        () => {
+          this.loadTasks();
+        },
+        (error) => {
+          console.error('Erro ao excluir tarefa:', error);
+        }
+    );
+  }
 
 
-  onDrop(event: CdkDragDrop<any[]>): void {
+  addComment(task: Task): void {
+    if (this.newComment.trim() && task.id) {
+      const payload = { note: this.newComment, taskId: task.id };
+      this.taskService.addComment(payload).subscribe(
+        () => {
+          this.loadTasks();
+        },
+        (error) => {
+          console.error('Erro ao adicionar comentário:', error);
+        }
+      );
+      this.newComment = '';
+    }
+  }
+
+  logHours(task: Task): void {
+    if (this.newHours > 0 && task.id) {
+      const payload = { hours: this.newHours, taskId: task.id };
+      this.taskService.logHours(payload).subscribe(
+        () => {
+          this.loadTasks();
+        },
+        (error) => {
+          console.error('Erro ao registrar horas:', error);
+        }
+      );
+      this.newHours = 0;
+    }
+  }
+
+  onDrop(event: CdkDragDrop<Task[]>): void {
     if (event.previousContainer === event.container) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      moveItemInArray(
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
     } else {
       transferArrayItem(
         event.previousContainer.data,
@@ -85,36 +153,79 @@ export class TaskBoardComponent implements OnInit {
         event.currentIndex
       );
       const task = event.container.data[event.currentIndex];
-      task.status = event.container.id;
-      this.taskService.updateTask(task.id, task).subscribe();
+      const newStatus: 1 | 2 | 3 =
+        event.container.id === 'A fazer'
+          ? 1
+          : event.container.id === 'Em andamento'
+            ? 2
+            : 3;
+      // Atualiza somente o status
+      const updatedTask = { status: newStatus };
+      this.taskService.updateTask(task.id!, updatedTask).subscribe(
+        () => {
+          this.loadTasks();
+        },
+        (error) => {
+          console.error('Erro ao atualizar status:', error);
+        }
+      );
     }
   }
 
-  openTaskForm(task?: Task): void {
-    const dialogRef = this.dialog.open(TaskFormComponent, {
-      data: { task }
-    });
+  saveTaskUpdates(task: Task): void {
+    if (!task.id) return;
 
-    dialogRef.afterClosed().subscribe((updated: boolean) => {
-      if (updated) this.loadTasks();
-    });
-  }
+    const updates: Partial<Task> = {};
 
-  deleteTask(task: Task) {
-    if (task.id) {
-      this.taskService.deleteTask(task.id).subscribe(() => { // Removido '!'
-        this.loadTasks();
-      });
+    if (this.newComment.trim()) {
+      updates.comments = [
+        ...(task.comments || []),
+        { note: this.newComment, user: 1, task: task.id }
+      ];
     }
-  }
-  openTaskDetails(task: Task) {
-    this.dialog.open(TaskDetailsComponent, {
-      data: {
-        task: task,
-        taskTitle: task.name // Alterado de 'title'
+
+    if (this.newHours > 0) {
+      updates.planned_hours = (task.planned_hours || 0) + this.newHours;
+    }
+
+    if (this.newResponsible.trim()) {
+      const ownerId = parseInt(this.newResponsible.trim(), 10);
+      if (!isNaN(ownerId)) {
+        updates.owner = ownerId;
       }
-    });
+    }
+
+    // Debug: verificar o payload antes do envio
+    console.log('Payload para atualização:', updates);
+
+    if (Object.keys(updates).length > 0) {
+      this.taskService.updateTask(task.id, updates).subscribe(
+        () => {
+          this.loadTasks();
+          this.newComment = '';
+          this.newHours = 0;
+          this.newResponsible = '';
+        },
+        (error) => {
+          console.error('Erro ao salvar alterações:', error);
+        }
+      );
+    }
   }
 
-  protected readonly status = status;
+  // Dentro da classe TaskBoardComponent
+
+  getStatusColor(status: number): string {
+    switch (status) {
+      case 1:
+        return '#f44336'; // vermelho para "A fazer"
+      case 2:
+        return '#ff9800'; // laranja para "Em andamento"
+      case 3:
+        return '#4caf50'; // verde para "Concluído"
+      default:
+        return '#9e9e9e'; // cinza para outros casos
+    }
+  }
+
 }
