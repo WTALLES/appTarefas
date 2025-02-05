@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
-import { ReactiveFormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import { CdkDrag, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 
 
@@ -42,7 +42,12 @@ import {HttpClientModule} from '@angular/common/http';
       CdkDropListGroup,
       CdkDropList,
       CdkDrag,
-      AppRoutingModule
+      AppRoutingModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatButtonModule,
+      FormsModule,
+      ReactiveFormsModule
     ],
     providers: [],
     bootstrap: [AppComponent]

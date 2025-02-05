@@ -1,23 +1,54 @@
 <div class="action-bar">
-  <button mat-raised-button color="primary" (click)="openTaskForm()">
-    <mat-icon>add</mat-icon> Nova Tarefa
-  </button>
+  <button mat-raised-button color="primary" (click)="openTaskForm()">Nova Tarefa</button>
 </div>
 
 <div class="board">
-  <div *ngFor="let status of statuses" class="lane">
+  <div *ngFor="let status of statuses" class="task-column">
     <h2>{{ status }}</h2>
     <div
       cdkDropList
       [id]="status"
-      [cdkDropListData]="tasks[status] || []"
+      [cdkDropListData]="tasks[status]"
       (cdkDropListDropped)="onDrop($event)"
       class="task-list"
     >
-      <div *ngFor="let task of (tasks[status] || [])" cdkDrag class="task-card">
-        <mat-card (click)="openTaskDetails(task)">
-          <mat-card-title>{{ task.title }}</mat-card-title>
-          <mat-card-content>{{ task.description }}</mat-card-content>
+      <div *ngFor="let task of tasks[status]" cdkDrag class="task-card-container">
+        <mat-card class="task-card" [ngStyle]="{'border-left': '5px solid ' + getStatusColor(task.status)}">
+          <mat-card-header>
+            <div class="header-container">
+              <mat-card-title>{{ task.name }}</mat-card-title>
+              <!-- Botão de deletar tarefa -->
+              <button mat-icon-button (click)="deleteTask(task.id!)">
+                <mat-icon class="delete-icon">delete</mat-icon>
+              </button>
+
+            </div>
+          </mat-card-header>
+          <mat-card-content>
+            <p class="description">
+              <strong>Descrição:</strong> {{ task.description }}
+            </p>
+            <p class="info">
+              <strong>Responsável:</strong> {{ task.owner || 'Não atribuído' }}
+            </p>
+            <p class="info">
+              <strong>Horas Planejadas:</strong> {{ task.planned_hours || 0 }}
+            </p>
+          </mat-card-content>
+          <mat-card-actions class="actions">
+            <mat-form-field appearance="outline" class="action-field">
+              <input matInput [(ngModel)]="newComment" placeholder="Comentário" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="action-field">
+              <input matInput type="number" [(ngModel)]="newHours" placeholder="Horas" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="action-field">
+              <input matInput type="number" [(ngModel)]="newResponsible" placeholder="Responsável" />
+            </mat-form-field>
+            <button mat-raised-button color="primary" (click)="saveTaskUpdates(task)">
+              Salvar
+            </button>
+          </mat-card-actions>
         </mat-card>
       </div>
     </div>

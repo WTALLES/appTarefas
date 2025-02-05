@@ -1,42 +1,112 @@
+
+
 .board {
   display: flex;
-  gap: 20px;
-  padding: 20px;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin: 20px;
 }
 
-.lane {
+
+.task-column {
   flex: 1;
-  min-width: 300px;
-  background: #f5f5f5;
+  min-width: 350px;
+  margin: 10px;
   padding: 15px;
   border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  background: linear-gradient(135deg, #B0E0E6, #ADD8E6);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease-in-out;
 }
+
+.task-column:hover {
+  transform: scale(1.02);
+}
+
+
+.task-column h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 1.3em;
+  color: #333;
+  border-bottom: 2px solid #ccc;
+  padding-bottom: 5px;
+}
+
 
 .task-list {
-  min-height: 400px;
+  min-height: 200px;
+  background-color: #ffffff;
+  padding: 10px;
+  border-radius: 6px;
 }
 
+.task-card-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+
 .task-card {
-  margin: 10px 0;
-  padding: 15px;
-  background: white;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  cursor: move;
-  transition: transform 0.2s;
+  width: 350px;
+  border-radius: 8px;
+
+  background-color: #fffafa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .task-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
-@media (max-width: 768px) {
-  .board {
-    flex-direction: column;
-  }
-  .lane {
-    min-width: 100%;
-  }
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+
+.mat-card-title {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.description {
+  font-style: italic;
+  color: #555;
+}
+
+.info {
+  margin-top: 5px;
+  font-size: 0.9em;
+  color: #333;
+}
+
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 10px;
+}
+
+.action-field {
+  width: 100px;
+}
+
+
+.action-bar {
+  margin: 20px;
+  text-align: center;
+}
+
+
+.delete-icon {
+  color: red;
 }
